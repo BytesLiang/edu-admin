@@ -23,7 +23,7 @@
         <el-date-picker
           v-model="teacherQuery.end"
           type="date"
-          placeholder="选择截至时间"
+          placeholder="选择截止时间"
           style="width: 100%;"
         />
       </el-form-item>
@@ -56,11 +56,16 @@
       <el-table-column prop="joinDate" label="入驻时间" width="160" />
       <el-table-column prop="sort" label="排序" width="60" />
       <el-table-column label="操作" width="200" align="center">
-        <!-- <template slot-scope="scope">
-          <router-link :to=""></router-link>
-        </template> -->
         <template slot-scope="scope">
-          <el-button type="danger" suze="mini" icon="el-icon-delete" @click="removeDate(scope.row.id)">
+          <router-link :to="'/teacher/edit/' + scope.row.id">
+            <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
+          </router-link>
+          <el-button
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            @click="removeDate(scope.row.id)"
+          >
             删除
           </el-button>
         </template>
@@ -119,7 +124,7 @@ export default {
         })
         .then(() => {
           teacher.removeTeacher(id)
-            .then(response => {
+            .then(() => {
               this.$message({
                 type: 'success',
                 message: '删除成功!'
