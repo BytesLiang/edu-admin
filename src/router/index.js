@@ -78,6 +78,35 @@ export const constantRoutes = [
   // },
 
   {
+    path: '/subject',
+    component: Layout,
+    redirect: '/subject/list',
+    name: '课程管理',
+    meta: { title: '课程管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'list',
+        name: '课程列表',
+        component: () => import('@/views/edu/subject/list'),
+        meta: { title: '课程列表', icon: 'tree' }
+      },
+      {
+        path: 'save',
+        name: '添加课程',
+        component: () => import('@/views/edu/subject/save'),
+        meta: { title: '添加课程', icon: 'el-icon-edit' }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EduTeacherEdit',
+        component: () => import('@/views/edu/teacher/save'),
+        meta: { title: '编辑讲师', naCache: true },
+        hidden: true
+      }
+    ]
+  },
+
+  {
     path: '/teacher',
     component: Layout,
     redirect: '/teacher/table',
