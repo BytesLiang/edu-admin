@@ -2,6 +2,7 @@ import request from '@/utils/request'
 
 export default {
   getTeacherList(params) {
+    console.log('调用方法')
     return request({
       url: '/eduService/teacher/list',
       method: 'get',
