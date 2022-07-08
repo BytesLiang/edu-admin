@@ -8,22 +8,88 @@
       <el-step title="提交审核" />
     </el-steps>
 
+    <el-button type="text" @click="openChapterDialog()">添加章节</el-button>
+
+    <ul class="chanpterList">
+      <li v-for="chapter in chapterVideoList" :key="chapter.id">
+        <p>
+          {{ chapter.title }}
+          <span class="acts">
+            <el-button style type="text" @click="openVideo(chapter.id)">添加小节</el-button>
+            <el-button style type="text" @click="openEditChatper(chapter.id)">编辑</el-button>
+            <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
+          </span>
+        </p>
+
+        <!-- 视频 -->
+        <ul class="chanpterList videoList">
+          <li v-for="video in chapter.children" :key="video.id">
+            <p>
+              {{ video.title }}
+              <span class="acts">
+                <el-button style type="text">编辑</el-button>
+                <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
+              </span>
+            </p>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
     <div>
       <el-button @click="previous">上一步</el-button>
       <el-button :disabled="saveBtnDisabled" type="primary" @click="next">下一步</el-button>
     </div>
+
+    <!-- 添加和修改章节表单 -->
+    <el-dialog :visible.sync="dialogChapterFormVisible" title="添加章节">
+      <el-form :model="chapter" label-width="120px">
+        <el-form-item label="章节标题">
+          <el-input v-model="chapter.title" />
+        </el-form-item>
+        <el-form-item label="章节排序">
+          <el-input-number v-model="chapter.sort" :min="0" controls-position="right" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogChapterFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveOrUpdate">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import chapter from '@/api/edu/chapter'
 
 export default {
   data() {
     return {
-      saveBtnDisabled: false
+      BASE_API: process.env.VUE_APP_BASE_API, // 接口API地址
+      dialogChapterFormVisible: false, // 章节弹框
+      dialogVideoFormVisible: false, // 小节弹框
+      saveBtnDisabled: false,
+      courseId: '',
+      chapterVideoList: [],
+      chapter: {
+        title: '',
+        sort: 0
+      },
+      video: {
+        title: '',
+        sort: 0,
+        free: 0,
+        videoSourceId: ''
+      }
     }
   },
-  created() { },
+  created() {
+    if (this.$route.params && this.$route.params.id) {
+      this.courseId = this.$route.params.id
+      // 根据课程id查询章节和小节
+      this.getChapterVideo()
+    }
+  },
   methods: {
     previous() {
       this.$router.push({ path: '/course/info/' + this.courseId })
@@ -31,7 +97,76 @@ export default {
     next() {
       // 跳转到第二步
       this.$router.push({ path: '/course/publish/' + this.courseId })
+    },
+    getChapterVideo() {
+      chapter.getChapterVideo(this.courseId).then(response => {
+        this.chapterVideoList = response.data
+      })
+    },
+    // 弹出添加章节页面
+    openChapterDialog() {
+      // 弹框
+      this.dialogChapterFormVisible = true
+      // 表单数据清空
+      this.chapter.title = ''
+      this.chapter.sort = 0
+    },
+    // 添加章节
+    addChapter() {
+      // 设置课程id到chapter对象里面
+      this.chapter.courseId = this.courseId
+      chapter.addChapter(this.chapter).then(response => {
+        // 关闭弹框
+        this.dialogChapterFormVisible = false
+        // 提示
+        this.$message({
+          type: 'success',
+          message: '添加章节成功!'
+        })
+        // 刷新页面
+        this.getChapterVideo()
+      })
     }
   }
 }
 </script>
+
+<style scoped>
+.chanpterList {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chanpterList li {
+  position: relative;
+}
+.chanpterList p {
+  float: left;
+  font-size: 20px;
+  margin: 10px 0;
+  padding: 10px;
+  height: 70px;
+  line-height: 50px;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+.chanpterList .acts {
+  float: right;
+  font-size: 14px;
+}
+
+.videoList {
+  padding-left: 50px;
+}
+.videoList p {
+  float: left;
+  font-size: 14px;
+  margin: 10px 0;
+  padding: 10px;
+  height: 50px;
+  line-height: 30px;
+  width: 100%;
+  border: 1px dotted #ddd;
+}
+</style>
