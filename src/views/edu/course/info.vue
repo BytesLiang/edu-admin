@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+    <h2 style="text-align: center;">发布新课程</h2>
+
     <el-steps :active="1" process-status="wait" align-center style="margin-bottom: 40px;">
       <el-step title="填写课程基本信息" />
       <el-step title="创建课程大纲" />
@@ -114,17 +116,42 @@ export default {
         cover: '@/assets/java.jpg',
         price: 0
       },
+      coureseId: '',
       teacherList: [], // 封装所有讲师
       subjectOneList: [], // 封装一级分类
       subjectTwoList: [] // 封装二级分类
     }
   },
   created() {
-    console.log('create')
-    this.getListTeacher()
-    this.getOneSubject()
+    if (this.$route.params && this.$route.params.id) {
+      this.courseId = this.$route.params.id
+      this.getInfo()
+    } else {
+      this.getListTeacher()
+      this.getOneSubject()
+    }
   },
   methods: {
+    // 根据课程id查询
+    getInfo() {
+      course.getCourseInfo(this.courseId)
+        .then(response => {
+          // 在courseInfo课程基本信息，包含 一级分类id 和 二级分类id
+          this.courseInfo = response.data
+          // 查询所有的分类，包含一级和二级
+          subject.getSubjectList()
+            .then(response => {
+              this.subjectOneList = response.data
+              for (var oneSubject of this.subjectOneList) {
+                if (this.courseInfo.subjectParentId === oneSubject.id) {
+                  this.subjectTwoList = oneSubject.children
+                }
+              }
+            })
+          // 初始化所有讲师
+          this.getListTeacher()
+        })
+    },
     addCourse() {
       course.addCourseInfo(this.courseInfo)
         .then((response) => {
@@ -136,6 +163,14 @@ export default {
         })
     },
     updateCourse() {
+      course.updateCourseInfo(this.courseInfo)
+        .then(response => {
+          this.$message({
+            type: 'success',
+            message: '修改课程信息成功!'
+          })
+          this.$router.push({ path: '/course/chapter/' + this.courseId })
+        })
     },
     saveOrUpdate() {
       if (!this.courseInfo.id) {
@@ -190,3 +225,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.tinymce-container {
+  line-height: 29px;
+}
+</style>
