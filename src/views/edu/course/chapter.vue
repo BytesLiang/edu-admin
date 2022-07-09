@@ -11,24 +11,24 @@
     <el-button type="text" @click="openChapterDialog()">添加章节</el-button>
 
     <ul class="chanpterList">
-      <li v-for="chapter in chapterVideoList" :key="chapter.id">
+      <li v-for="chapterInfo in chapterVideoList" :key="chapterInfo.id">
         <p>
-          {{ chapter.title }}
+          {{ chapterInfo.title }}
           <span class="acts">
-            <el-button style type="text" @click="openVideo(chapter.id)">添加小节</el-button>
-            <el-button style type="text" @click="openEditChatper(chapter.id)">编辑</el-button>
-            <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
+            <el-button style type="text" @click="openVideo(chapterInfo.id)">添加小节</el-button>
+            <el-button style type="text" @click="openEditChatper(chapterInfo.id)">编辑</el-button>
+            <el-button type="text" @click="removeChapter(chapterInfo.id)">删除</el-button>
           </span>
         </p>
 
         <!-- 视频 -->
         <ul class="chanpterList videoList">
-          <li v-for="video in chapter.children" :key="video.id">
+          <li v-for="videoInfo in chapter.children" :key="videoInfo.id">
             <p>
-              {{ video.title }}
+              {{ videoInfo.title }}
               <span class="acts">
                 <el-button style type="text">编辑</el-button>
-                <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
+                <el-button type="text" @click="removeVideo(videoInfo.id)">删除</el-button>
               </span>
             </p>
           </li>
@@ -125,6 +125,54 @@ export default {
         })
         // 刷新页面
         this.getChapterVideo()
+      })
+    },
+    // 修改章节
+    updateChapter() {
+      chapter.updateChapter(this.chapter).then(response => {
+        this.dialogChapterFormVisible = false
+        this.$message({
+          type: 'success',
+          message: '修改章节成功!'
+        })
+        this.getChapterVideo()
+      })
+    },
+    // 修改章节弹框数据回显
+    openEditChatper(chapterId) {
+      // 弹框
+      this.dialogChapterFormVisible = true
+      // 调用接口
+      chapter.getChapterById(chapterId).then(response => {
+        this.chapter = response.data
+      })
+    },
+    saveOrUpdate() {
+      if (!this.chapter.id) {
+        this.addChapter()
+      } else {
+        this.updateChapter()
+      }
+    },
+    // 删除章节
+    removeChapter(chapterId) {
+      this.$confirm('此操作将删除章节, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 点击确定，执行then方法
+        // 调用删除的方法
+        chapter.deleteChapter(chapterId).then(response => {
+          // 删除成功
+          // 提示信息
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          // 刷新页面
+          this.getChapterVideo()
+        })
       })
     }
   }
