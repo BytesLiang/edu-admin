@@ -28,7 +28,7 @@ export default {
   updateChapter(chapter) {
     return request({
       url: '/eduService/chapter/update',
-      method: 'post',
+      method: 'put',
       data: chapter
     })
   },
