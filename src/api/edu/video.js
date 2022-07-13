@@ -32,5 +32,19 @@ export default {
       url: `/eduService/video/${videoId}`,
       method: 'delete'
     })
+  },
+  // 获取视频上传签名
+  getVodSignature() {
+    return request({
+      url: '/edu/vod/sign',
+      method: 'get'
+    })
+  },
+  // 删除视频
+  removeVod(fileId) {
+    return request({
+      url: `/edu/vod/${fileId}`,
+      method: 'delete'
+    })
   }
 }

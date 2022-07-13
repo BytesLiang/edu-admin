@@ -17,7 +17,7 @@
           :on-error="fileUploadError"
           :disabled="importBtnDisabled"
           :limit="1"
-          :action="BASE_API+'/eduService/subject/addSubject'"
+          :action="BASE_API+'/eduService/subject/add'"
           name="file"
           accept="application/.xls,.xlsx"
         >
